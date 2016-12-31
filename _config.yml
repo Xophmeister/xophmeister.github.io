@@ -1,0 +1,13 @@
+# Site settings
+title: xoph.co
+description: Specialisation is for Insects
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+gems:
+  - jekyll-feed
+  - jekyll-sitemap
+
+# Ad hoc pagination
+per_page: 3
