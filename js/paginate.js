@@ -2,30 +2,35 @@
 // Copyright (c) 2016 Christopher Harrison
 // MIT License
 (function(root) {
-  var exportName = 'paginate';
+  var dom = root.document,
+      exportName = 'paginate';
 
   var formatDate = function(date) {
     var day = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()],
-        ordinal = ['th', 'st', 'nd', 'rd'][date.getDate() % 10 < 4 ? (date.getDate() % 10) * (parseInt(date.getDate() / 10, 10) % 10 == 1 ? 0 : 1) : 0],
+        domonth = date.getDate(),
+        ordinal = ['th', 'st', 'nd', 'rd'][domonth % 10 < 4 ? (domonth % 10) * (parseInt(domonth / 10, 10) % 10 == 1 ? 0 : 1) : 0],
         month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][date.getMonth()];
 
-    return day + ', ' + date.getDate() + ordinal + ' ' + month + ' ' + date.getFullYear();
+    return day + ', ' + domonth + ordinal + ' ' + month + ' ' + date.getFullYear();
   };
 
   var Post = function(post) {
+    var that = this;
+
     this.title = post.title;
     this.date = new Date(post.date);
     this.url = post.url;
     this.description = post.description;
 
-    this.toDOM = function() {
-      var node = root.document.createElement('li');
-      node.innerHTML = '<h2><a class="post-title" href="' + this.url + '">' + this.title + '</a></h2>'
-                     + '<p class="post-meta">' + formatDate(this.date) + '</p>'
-                     + '<p class="post-description">' + this.description + '</p>';
-
+    // Precalculate DOM node because our state never
+    // changes and we need to use this multiple times
+    this.domNode = (function() {
+      var node = dom.createElement('li');
+      node.innerHTML = '<h2><a class="post-title" href="' + that.url + '">' + that.title + '</a></h2>'
+                     + '<p class="post-meta">' + formatDate(that.date) + '</p>'
+                     + '<p class="post-description">' + that.description + '</p>';
       return node;
-    };
+    })();
   };
 
   var deserialise = function(post) {
@@ -39,11 +44,11 @@
   };
 
   var paginate = function(posts, perPage) {
-    var postList = root.document.getElementById('post-list'),
+    var postList = dom.getElementById('post-list'),
         canon = posts.map(deserialise).sort(byDateThenTitle);
 
     canon.forEach(function(post) {
-      postList.appendChild(post.toDOM());
+      postList.appendChild(post.domNode);
     });
   };
 
